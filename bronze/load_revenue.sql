@@ -27,11 +27,15 @@ copy bronze.revenue_gl from 'C:/SQL_Project/customer-history-project/revenue-his
 --Every month, over-write the data in the file named 'Latest_Revenue_GL_report.csv'
 --with the latest month raw report saved in customer files folder in shared drive
 --====================================================================================
-
-Create or Replace Procedure bronze.load_revenue()
+qCreate or Replace Procedure bronze.load_revenue()
 Language plpgsql
 As $$
+Declare
+	begintime timestamp;
+	endtime timestamp;
 Begin
+	begintime := now();
+	Raise Notice 'Insert from latest_revenue_gl_report.csv file has begun';
 	Begin
 		Copy bronze.revenue_gl from 'C:/SQL_Project/customer-history-project/revenue-history/0/Latest_Revenue_GL_report.csv' with (Format csv, Header true);
 		Exception
@@ -39,10 +43,13 @@ Begin
 		Raise Notice 'Error in loading revenue';
 		Raise Notice 'Error message %', SQLERRM;
 	End;
+	endtime := now();
+	Raise Notice 'Insert from latest_revenue_gl_report.csv file has ended';
+	Raise Notice 'Time taken to complete the process is %', endtime - begintime;
 End;
 $$;
 --====================================================================================
---Process for calling the stored procedure
+--Calling the stored procedure
 --After updating the 'Latest_Revenue_GL_report.csv' file with latest month data
 --call the stored procedure: bronze.load_revenue()
 --=====================================================================================
