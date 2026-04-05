@@ -1,0 +1,37 @@
+--========================================================
+Creating a table to load revenue gl data from source files
+--========================================================
+Create Table bronze.revenue_gl(
+Code_Combination text,
+Journal_Batch text,
+Journal_Name text,
+Source_Doc varchar(50),
+Transaction_Type varchar(50),
+Transaction_Source varchar(50),
+Transaction_ID varchar(50),
+Project_Number varchar(50),
+Contract_Number varchar(50),
+Amount_Accounted_Currency varchar(50),
+Amount_Entered_Currency varchar(50),
+Entered_Currency varchar(50),
+Tax_Name varchar(50),
+Tax_Rate varchar(50),
+Tax_Jurisdiction_Code varchar(50),
+Accounting_Date date,
+PO_Number varchar(50),
+Line_Description text,
+Customer_Number varchar(50),
+Customer_Name text,
+Invoice_AP_AR varchar(50),
+Invoice_Date date,
+Payment_Receipt_Number_Asset_Number int,
+From_Location varchar(50),
+To_Location varchar(50),
+Incoterms varchar(50),
+Receipt_Number varchar(50),
+Payment_Date varchar(50),
+Account_Description text,
+Analysis_Description text,
+Posted_Date date,
+Shipment_ID varchar(50)
+)
