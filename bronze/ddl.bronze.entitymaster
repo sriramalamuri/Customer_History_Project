@@ -13,3 +13,11 @@ LOB varchar(50),
 Decision_combination varchar(50),
 Decision_key Bigint
 )
+
+--=========================================================
+--Load data into bronze.entity_master table
+--=========================================================
+
+Truncate table bronze.entity_master;
+copy bronze.entity_master from 'C:/SQL_Project/customer-history-project/revenue-history/0/Entity_Master.csv'
+with (format csv, header true);
