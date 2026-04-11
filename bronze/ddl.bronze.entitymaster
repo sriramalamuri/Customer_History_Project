@@ -11,5 +11,5 @@ Entity_code Int,
 Location_code varchar(50),
 LOB varchar(50),
 Decision_combination varchar(50),
-Decision_key Int
+Decision_key Bigint
 )
