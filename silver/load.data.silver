@@ -53,18 +53,43 @@ As $$
 --Insert data in silver.revenue_gl
 --======================================================
 
-select
+With cte_dk as(
+Select 
 	Code_Combination,
-	Transaction_type,
+	Case			
+		When Substring(Code_Combination,1,4) In 
+		('4602', '4601', '4603', '4605', '4218', '4604', '4210', '4205', '4223', '4207', '4202', '4208', '4209', '4219', '4224', '4225', '4991')
+		Then Cast(Substring(Code_Combination,1,4) AS bigint)
+		
+		When Substring(Code_Combination,1,4) In ('4201', '4206', '4606')
+		Then Cast(Substring(Code_Combination,1,4)||Substring(Code_Combination,length(Code_Combination)-3,4) as bigint)
+			
+		When Substring(Code_Combination,1,4) = '4204' AND 
+		Substring(Code_Combination,length(Code_Combination)-3,4) In ('0072', '0076', '0077', '0078')
+		Then Cast(Substring(Code_Combination,1,4)||Substring(Code_Combination,length(Code_Combination)-3,4) as bigint)
+	
+		Else
+		Cast(
+		(Substring(Code_Combination,1,4)||
+		Substring(Code_Combination,(length(Code_Combination)-12),8)||
+		Substring(Code_Combination,(length(Code_Combination)-3),4)) as bigint)
+	End as decision_key
+From bronze.revenue_gl
+)
+select 
+	brg.Code_Combination Code_Combination,
+	Transaction_type Transaction_type,
 	Cast (replace(Amount_Accounted_Currency,',','') AS numeric) Amount_Accounted_Currency,
 	Cast (Accounting_Date AS date) Accounting_Date,
 	Line_Description,
 	Cast (Customer_Number AS bigint) Customer_Number,
 	Customer_Name,
 	Account_Description,
-	Analysis_Description
-From bronze.revenue_gl
-	End;
+	Analysis_Description,
+	cdk.decision_key decision_key
+From bronze.revenue_gl brg
+Left Join cte_dk cdk
+On brg.Code_Combination = cdk.Code_Combination	End;
 $$;
 
 call silver.load_silver();
