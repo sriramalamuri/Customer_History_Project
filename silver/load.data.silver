@@ -52,7 +52,21 @@ As $$
 --======================================================
 --Insert data in silver.revenue_gl
 --======================================================
-
+If to_regclass('silver.revenue_gl') Is Not Null Then
+		Truncate table silver.revenue_gl;
+		End if;
+Insert into silver.revenue_gl(
+Code_Combination,
+Transaction_Type,
+Amount_Accounted_Currency,
+Accounting_Date,
+Line_Description,
+Customer_Number,
+Customer_Name,
+Account_Description,
+Analysis_Description,
+decision_key
+)
 With cte_dk as(
 Select 
 	Code_Combination,
@@ -80,7 +94,11 @@ select
 	brg.Code_Combination Code_Combination,
 	Transaction_type Transaction_type,
 	Cast (replace(Amount_Accounted_Currency,',','') AS numeric) Amount_Accounted_Currency,
-	Cast (Accounting_Date AS date) Accounting_Date,
+	CASE
+	    WHEN trim(Accounting_Date) ~ '^[0-9]+(\.[0-9]+)?$' THEN
+	    (timestamp '1899-12-30 00:00:00' + (Accounting_Date::numeric * interval '1 day'))::date
+	    ELSE NULL
+	END AS Accounting_Date,
 	Line_Description,
 	Cast (Customer_Number AS bigint) Customer_Number,
 	Customer_Name,
@@ -89,7 +107,7 @@ select
 	cdk.decision_key decision_key
 From bronze.revenue_gl brg
 Left Join cte_dk cdk
-On brg.Code_Combination = cdk.Code_Combination	End;
-$$;
+On brg.Code_Combination = cdk.Code_Combination	
 
-call silver.load_silver();
+End;
+$$;
