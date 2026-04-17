@@ -1,0 +1,32 @@
+--============================================================
+--loading data into silver schema
+--============================================================
+Create or Replace procedure silver.load_silver()
+language plpgsql
+As $$
+	Begin
+		If to_regclass('silver.entity_master') IS NOT NULL Then
+		Truncate Table silver.entity_master;
+		End If;
+		Insert into silver.entity_master(
+		Entity,
+		Vertical,
+		Business_unit,
+		Entity_code,
+		Location_code,
+		LOB,
+		Decision_combination,
+		Decision_key
+		)
+		Select
+		Entity,
+		Vertical,
+		Business_unit,
+		Entity_code,
+		Location_code,
+		LOB,
+		Decision_combination,
+		Decision_key
+		From bronze.entity_master;
+	End;
+$$;
