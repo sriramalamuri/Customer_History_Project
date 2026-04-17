@@ -1,5 +1,5 @@
 --============================================================
---loading data into silver schema
+--loading data into silver.entity_master
 --============================================================
 Create or Replace procedure silver.load_silver()
 language plpgsql
@@ -9,24 +9,62 @@ As $$
 		Truncate Table silver.entity_master;
 		End If;
 		Insert into silver.entity_master(
-		Entity,
-		Vertical,
-		Business_unit,
-		Entity_code,
-		Location_code,
-		LOB,
-		Decision_combination,
-		Decision_key
+			Entity,
+			Vertical,
+			Business_unit,
+			Entity_code,
+			Location_code,
+			LOB,
+			Decision_combination,
+			Decision_key
 		)
 		Select
-		Entity,
-		Vertical,
-		Business_unit,
-		Entity_code,
-		Location_code,
-		LOB,
-		Decision_combination,
-		Decision_key
-		From bronze.entity_master;
+			Entity,
+			Vertical,
+			Business_unit,
+			Entity_code,
+			Location_code,
+			LOB,
+			Decision_combination,
+			Decision_key
+		From 
+			bronze.entity_master;
+--==================================================
+--Insert data into silver.top150_mapping
+--==================================================
+		If to_regclass('silver.top150_mapping') Is Not Null Then
+		Truncate table silver.top150_mapping;
+		End if;
+		Insert into silver.top150_mapping(
+			Top150_name,
+			account_name,
+			customer_code,
+			customer_name
+		)
+		Select
+			Top150_name,
+			account_name,
+			customer_code,
+			customer_name
+		From
+			bronze.top150_mapping;
+
+--======================================================
+--Insert data in silver.revenue_gl
+--======================================================
+
+select
+	Code_Combination,
+	Transaction_type,
+	Cast (replace(Amount_Accounted_Currency,',','') AS numeric) Amount_Accounted_Currency,
+	Cast (Accounting_Date AS date) Accounting_Date,
+	Line_Description,
+	Cast (Customer_Number AS bigint) Customer_Number,
+	Customer_Name,
+	Account_Description,
+	Analysis_Description
+From bronze.revenue_gl
 	End;
 $$;
+
+call silver.load_silver();
