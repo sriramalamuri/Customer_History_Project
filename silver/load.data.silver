@@ -54,42 +54,19 @@ As $$
 --Insert data in silver.revenue_gl
 --======================================================
 If to_regclass('silver.revenue_gl') Is Not Null Then
-		Truncate table silver.revenue_gl;
-		End if;
+	Truncate table silver.revenue_gl;
+	End if;
 Insert into silver.revenue_gl(
-Code_Combination,
-Transaction_Type,
-Amount_Accounted_Currency,
-Accounting_Date,
-Line_Description,
-Customer_Number,
-Customer_Name,
-Account_Description,
-Analysis_Description,
-decision_key
-)
-With cte_dk as(
-Select 
 	Code_Combination,
-	Case			
-		When Substring(Code_Combination,1,4) In 
-		('4602', '4601', '4603', '4605', '4218', '4604', '4210', '4205', '4223', '4207', '4202', '4208', '4209', '4219', '4224', '4225', '4991')
-		Then Cast(Substring(Code_Combination,1,4) AS bigint)
-		
-		When Substring(Code_Combination,1,4) In ('4201', '4206', '4606')
-		Then Cast(Substring(Code_Combination,1,4)||Substring(Code_Combination,length(Code_Combination)-3,4) as bigint)
-			
-		When Substring(Code_Combination,1,4) = '4204' AND 
-		Substring(Code_Combination,length(Code_Combination)-3,4) In ('0072', '0076', '0077', '0078')
-		Then Cast(Substring(Code_Combination,1,4)||Substring(Code_Combination,length(Code_Combination)-3,4) as bigint)
-	
-		Else
-		Cast(
-		(Substring(Code_Combination,1,4)||
-		Substring(Code_Combination,(length(Code_Combination)-12),8)||
-		Substring(Code_Combination,(length(Code_Combination)-3),4)) as bigint)
-	End as decision_key
-From bronze.revenue_gl
+	Transaction_Type,
+	Amount_Accounted_Currency,
+	Accounting_Date,
+	Line_Description,
+	Customer_Number,
+	Customer_Name,
+	Account_Description,
+	Analysis_Description,
+	decision_key
 )
 select 
 	brg.Code_Combination Code_Combination,
@@ -97,25 +74,63 @@ select
 	Cast (replace(Amount_Accounted_Currency,',','') AS numeric) Amount_Accounted_Currency,
 	CASE
 	    WHEN trim(Accounting_Date) ~ '^[0-9]+(\.[0-9]+)?$' THEN
-	    (timestamp '1899-12-30 00:00:00' + (Accounting_Date::numeric * interval '1 day'))::date
+	        (timestamp '1899-12-30 00:00:00' + (trim(Accounting_Date)::numeric * interval '1 day'))::date
+	    WHEN trim(Accounting_Date) ~ '^[0-9]{2}-[0-9]{2}-[0-9]{4}$' THEN
+	        to_date(trim(Accounting_Date), 'DD-MM-YYYY')
 	    ELSE NULL
 	END AS Accounting_Date,
 	Line_Description,
-	Cast (Customer_Number AS bigint) Customer_Number,
+	CASE
+	    WHEN Customer_Number ~ '^[0-9]+$' THEN CAST(Customer_Number AS bigint)
+	    ELSE NULL
+	END AS Customer_Number,
 	Customer_Name,
 	Account_Description,
 	Analysis_Description,
-	cdk.decision_key decision_key
-From bronze.revenue_gl brg
-Left Join cte_dk cdk
-On brg.Code_Combination = cdk.Code_Combination;
-
+	Null as decision_key
+From bronze.revenue_gl brg;
 End;
 $$;
 
---==============================================
---execute stored procedure silver.load_silver()
---==============================================
+--====================================================
+--procedure silver.load_silver()
+--====================================================
+call silver.load_silver()
 
+--=====================================================
+--procedure to create decision_key in silver.revenue_gl
+--=====================================================
+Create or replace procedure silver.revenue_decision_key()
+Language plpgsql
+As $$
+Begin
+	Update silver.revenue_gl
+	Set decision_key =
+		Case
+			When Code_Combination Is Null Then Null
+			
+			When Substring(Code_Combination,1,4) In 
+			('4602', '4601', '4603', '4605', '4218', '4604', '4210', '4205', '4223', '4207', '4202', '4208', '4209', '4219', '4224', '4225', '4991')
+			Then Cast(Substring(Code_Combination,1,4) AS bigint)
+			
+			When Substring(Code_Combination,1,4) In ('4201', '4206', '4606')
+			Then Cast(Substring(Code_Combination,1,4)||Substring(Code_Combination,length(Code_Combination)-3,4) as bigint)
+				
+			When Substring(Code_Combination,1,4) = '4204' AND 
+			Substring(Code_Combination,length(Code_Combination)-3,4) In ('0072', '0076', '0077', '0078')
+			Then Cast(Substring(Code_Combination,1,4)||Substring(Code_Combination,length(Code_Combination)-3,4) as bigint)
+		
+			Else
+			Cast(
+			(Substring(Code_Combination,1,4)||
+			Substring(Code_Combination,(length(Code_Combination)-12),8)||
+			Substring(Code_Combination,(length(Code_Combination)-3),4)) as bigint)
+		End
+	Where decision_key Is Null;
+End;
+$$;
 
-call silver.load_silver();
+--=====================================================
+--call procedure to update decision_key
+--=====================================================
+call silver.revenue_decision_key()
