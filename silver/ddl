@@ -15,7 +15,25 @@ Entity_code Int,
 Location_code varchar(50),
 LOB varchar(50),
 Decision_combination varchar(50),
-Decision_key Bigint
+Decision_key Bigint,
+dwh_create_date timestamp default now()
+)
+
+--===========================================================
+--Creating table silver.top150_mapping
+--===========================================================
+DO $$
+BEGIN
+    IF to_regclass('silver.top150_mapping') IS NOT NULL THEN
+        DROP TABLE silver.top150_mapping;
+    END IF;
+END $$;
+Create table silver.top150_mapping(
+Top150_name text,
+account_name text,
+customer_code bigint,
+customer_name text,
+dwh_create_date timestamp default now()
 )
 
 --===========================================================
@@ -37,20 +55,24 @@ Customer_Number text,
 Customer_Name text,
 Account_Description text,
 Analysis_Description text,
-decision_key bigint
+decision_key bigint,
+dwh_create_date timestamp default now()
 )
---===========================================================
---Creating table silver.top150_mapping
---===========================================================
-DO $$
-BEGIN
-    IF to_regclass('silver.top150_mapping') IS NOT NULL THEN
-        DROP TABLE silver.top150_mapping;
-    END IF;
-END $$;
-Create table silver.top150_mapping(
-Top150_name text,
-account_name text,
-customer_code bigint,
-customer_name text
-)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
