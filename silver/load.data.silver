@@ -112,3 +112,10 @@ On brg.Code_Combination = cdk.Code_Combination;
 
 End;
 $$;
+
+--==============================================
+--execute stored procedure silver.load_silver()
+--==============================================
+
+
+call silver.load_silver();
