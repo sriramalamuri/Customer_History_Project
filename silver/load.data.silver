@@ -29,6 +29,7 @@ As $$
 			Decision_key
 		From 
 			bronze.entity_master;
+
 --==================================================
 --Insert data into silver.top150_mapping
 --==================================================
@@ -107,7 +108,7 @@ select
 	cdk.decision_key decision_key
 From bronze.revenue_gl brg
 Left Join cte_dk cdk
-On brg.Code_Combination = cdk.Code_Combination	
+On brg.Code_Combination = cdk.Code_Combination;
 
 End;
 $$;
