@@ -19,10 +19,7 @@ From silver.entity_master
 Drop view if exists gold.dim_top150;
 Create View gold.dim_top150 as
 select 
-	top150_name as customer_name,
-	account_name,
-	customer_code,
-	customer_name as oracle_customer_name	
+	customer_code
 From silver.top150_mapping
 
 --=======================================================
@@ -45,7 +42,7 @@ Select
 	r.analysis_description as analysis_description,
 	r.decision_key as id_key,
 	Case 
-		When t150.account_name IS NULL Then 'No'
+		When t150.customer_code IS NULL Then 'No'
 		Else 'Yes'
 	End Top150_mapping
 From silver.revenue_gl r
@@ -53,5 +50,8 @@ Left Join silver.entity_master e
 on r.decision_key = e.decision_key
 Left Join silver.top150_mapping t150
 on r.customer_number = t150.customer_code
+
+
+
 
 
