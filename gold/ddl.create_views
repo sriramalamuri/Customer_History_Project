@@ -25,12 +25,33 @@ select
 	customer_name as oracle_customer_name	
 From silver.top150_mapping
 
-
-
-
-
-
-
-
+--=======================================================
+--Create view gold.fact_revenue
+--=======================================================
+Drop View If Exists gold.fact_revenue;
+Create View gold.fact_revenue As
+Select 
+	e.Entity as entity,
+	e.Vertical as vertical,
+	e.Business_unit as BU,
+	e.Entity_code as entity_code,
+	e.LOB as LOB,
+	r.customer_number as customer_code,
+	r.customer_name as oracle_customer_name,
+	r.transaction_type as transaction_type,
+	r.amount_accounted_currency as amount,
+	r.accounting_date as date,
+	r.account_description as account_description,
+	r.analysis_description as analysis_description,
+	r.decision_key as id_key,
+	Case 
+		When t150.account_name IS NULL Then 'No'
+		Else 'Yes'
+	End Top150_mapping
+From silver.revenue_gl r
+Left Join silver.entity_master e
+on r.decision_key = e.decision_key
+Left Join silver.top150_mapping t150
+on r.customer_number = t150.customer_code
 
 
