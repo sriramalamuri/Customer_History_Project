@@ -48,10 +48,10 @@ END $$;
 Create table silver.revenue_gl(
 Code_Combination text,
 Transaction_Type text,
-Amount_Accounted_Currency text,
-Accounting_Date varchar(50),
+Amount_Accounted_Currency numeric,
+Accounting_Date date,
 Line_Description text,
-Customer_Number text,
+Customer_Number bigint,
 Customer_Name text,
 Account_Description text,
 Analysis_Description text,
