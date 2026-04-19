@@ -55,10 +55,7 @@ Decision_key Bigint
 --Create table bronze.top150_mapping
 
 Create Table bronze.top150_mapping(
-Top150_name text,
-account_name text,
-customer_code bigint,
-customer_name text
+customer_code bigint
 )
 
 --=================================================
