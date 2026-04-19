@@ -29,10 +29,7 @@ BEGIN
     END IF;
 END $$;
 Create table silver.top150_mapping(
-Top150_name text,
-account_name text,
 customer_code bigint,
-customer_name text,
 dwh_create_date timestamp default now()
 )
 
