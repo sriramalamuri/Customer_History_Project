@@ -72,7 +72,7 @@ Insert into silver.revenue_gl(
 select 
 	brg.Code_Combination Code_Combination,
 	Transaction_type Transaction_type,
-	Cast (replace(Amount_Accounted_Currency,',','') AS numeric) Amount_Accounted_Currency,
+	Coalesce(Cast(replace(Amount_Accounted_Currency,',','') AS numeric)*-1,0) Amount_Accounted_Currency,
 	CASE
 	    WHEN trim(Accounting_Date) ~ '^[0-9]+(\.[0-9]+)?$' THEN
 	        (timestamp '1899-12-30 00:00:00' + (trim(Accounting_Date)::numeric * interval '1 day'))::date
@@ -136,3 +136,14 @@ $$;
 --call procedure to update decision_key
 --=====================================================
 call silver.revenue_decision_key()
+
+
+
+
+
+
+
+
+
+
+
