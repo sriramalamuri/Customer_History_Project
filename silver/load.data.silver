@@ -37,16 +37,10 @@ As $$
 		Truncate table silver.top150_mapping;
 		End if;
 		Insert into silver.top150_mapping(
-			Top150_name,
-			account_name,
-			customer_code,
-			customer_name
+			customer_code
 		)
 		Select
-			Top150_name,
-			account_name,
-			customer_code,
-			customer_name
+			customer_code
 		From
 			bronze.top150_mapping;
 
@@ -72,7 +66,7 @@ Insert into silver.revenue_gl(
 select 
 	brg.Code_Combination Code_Combination,
 	Transaction_type Transaction_type,
-	Coalesce(Cast(replace(Amount_Accounted_Currency,',','') AS numeric)*-1,0) Amount_Accounted_Currency,
+	Coalesce((replace(Amount_Accounted_Currency,',','') :: numeric)*-1,0 :: numeric) Amount_Accounted_Currency,
 	CASE
 	    WHEN trim(Accounting_Date) ~ '^[0-9]+(\.[0-9]+)?$' THEN
 	        (timestamp '1899-12-30 00:00:00' + (trim(Accounting_Date)::numeric * interval '1 day'))::date
@@ -136,14 +130,3 @@ $$;
 --call procedure to update decision_key
 --=====================================================
 call silver.revenue_decision_key()
-
-
-
-
-
-
-
-
-
-
-
