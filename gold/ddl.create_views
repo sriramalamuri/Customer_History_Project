@@ -1,0 +1,36 @@
+--=======================================================
+--Create view gold.dim_entity_master
+--=======================================================
+Drop view if exists gold.dim_entity_master;
+Create View gold.dim_entity_master As
+Select 
+	entity,
+	vertical,
+	business_unit,
+	entity_code,
+	location_code as location,
+	lob as line_of_business,
+	decision_key as id_key
+From silver.entity_master
+
+--=======================================================
+--Create view gold.dim_top150
+--=======================================================
+Drop view if exists gold.dim_top150;
+Create View gold.dim_top150 as
+select 
+	top150_name as customer_name,
+	account_name,
+	customer_code,
+	customer_name as oracle_customer_name	
+From silver.top150_mapping
+
+
+
+
+
+
+
+
+
+
