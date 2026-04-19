@@ -68,6 +68,7 @@ Insert into silver.revenue_gl(
 	Analysis_Description,
 	decision_key
 )
+
 select 
 	brg.Code_Combination Code_Combination,
 	Transaction_type Transaction_type,
@@ -89,12 +90,13 @@ select
 	Analysis_Description,
 	Null as decision_key
 From bronze.revenue_gl brg;
+
 End;
 $$;
 
---====================================================
+--================================
 --procedure silver.load_silver()
---====================================================
+--===============================
 call silver.load_silver()
 
 --=====================================================
