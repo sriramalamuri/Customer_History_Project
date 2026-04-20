@@ -44,6 +44,23 @@ As $$
 		From
 			bronze.top150_mapping;
 
+--==================================================
+--Insert data into silver.industry_mapping
+--==================================================
+		If to_regclass('silver.industry_mapping') Is Not Null Then
+		Truncate table silver.industry_mapping;
+		End if;
+		Insert into silver.industry_mapping(
+			customer_code,
+			industry
+		)
+		Select
+			customer_code,
+			industry
+		From
+			bronze.industry_mapping;
+
+
 --======================================================
 --Insert data in silver.revenue_gl
 --======================================================
