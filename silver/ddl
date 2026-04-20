@@ -56,8 +56,14 @@ decision_key bigint,
 dwh_create_date timestamp default now()
 )
 
+--===============================================================
+--Creat table silver.industry_mapping
+--===============================================================,
 
-
+Create table silver.industry_mapping(
+customer_code bigint,
+industry varchar(50)
+)
 
 
 
