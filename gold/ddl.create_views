@@ -23,6 +23,17 @@ select
 From silver.top150_mapping
 
 --=======================================================
+--Create view gold.dim_industry
+--=======================================================
+Drop view if exists gold.dim_industry;
+Create View gold.dim_industry as
+select 
+	customer_code,
+	industry
+From silver.industry_mapping
+
+
+--=======================================================
 --Create view gold.fact_revenue
 --=======================================================
 Drop View If Exists gold.fact_revenue;
@@ -35,6 +46,10 @@ Select
 	e.LOB as LOB,
 	r.customer_number as customer_code,
 	r.customer_name as oracle_customer_name,
+	Case
+		When i.industry Is Null Then 'n/a'
+		Else i.industry
+	End industry,
 	r.transaction_type as transaction_type,
 	r.amount_accounted_currency as amount,
 	r.accounting_date as date,
@@ -50,8 +65,5 @@ Left Join silver.entity_master e
 on r.decision_key = e.decision_key
 Left Join silver.top150_mapping t150
 on r.customer_number = t150.customer_code
-
-
-
-
-
+Left Join silver.industry_mapping i
+on r.customer_number = i.customer_code
