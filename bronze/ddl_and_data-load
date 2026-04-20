@@ -58,6 +58,12 @@ Create Table bronze.top150_mapping(
 customer_code bigint
 )
 
+--Create table bronze.industry_mapping
+
+Create Table bronze.industry_mapping(
+Customer_code bigint,
+Industry varchar(50)
+)
 --=================================================
 --load data into bronze.entity_master
 --=================================================
@@ -71,6 +77,14 @@ with (format csv, header true);
 
 Truncate table bronze.top150_mapping;
 copy bronze.top150_mapping from 'C:/SQL_Project/customer-history-project/revenue-history/0/Top150 mapping.csv'
+with (format csv, header true);
+
+--=================================================
+--load data into bronze.industry_mapping
+--=================================================
+
+Truncate table bronze.industry_mapping;
+Copy bronze.industry_mapping from 'C:/SQL_Project/customer-history-project/revenue-history/0/Industry_Mapping.csv'
 with (format csv, header true);
 
 --=====================================================
