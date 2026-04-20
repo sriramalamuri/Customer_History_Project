@@ -1,3 +1,9 @@
+Create or Replace procedure gold.create_views()
+Language plpgsql
+As
+$$
+Begin
+
 --=======================================================
 --Create view gold.dim_entity_master
 --=======================================================
@@ -11,7 +17,7 @@ Select
 	location_code as location,
 	lob as line_of_business,
 	decision_key as id_key
-From silver.entity_master
+From silver.entity_master;
 
 --=======================================================
 --Create view gold.dim_top150
@@ -20,7 +26,7 @@ Drop view if exists gold.dim_top150;
 Create View gold.dim_top150 as
 select 
 	customer_code
-From silver.top150_mapping
+From silver.top150_mapping;
 
 --=======================================================
 --Create view gold.dim_industry
@@ -30,7 +36,7 @@ Create View gold.dim_industry as
 select 
 	customer_code,
 	industry
-From silver.industry_mapping
+From silver.industry_mapping;
 
 
 --=======================================================
@@ -66,4 +72,7 @@ on r.decision_key = e.decision_key
 Left Join silver.top150_mapping t150
 on r.customer_number = t150.customer_code
 Left Join silver.industry_mapping i
-on r.customer_number = i.customer_code
+on r.customer_number = i.customer_code;
+
+End;
+$$;
