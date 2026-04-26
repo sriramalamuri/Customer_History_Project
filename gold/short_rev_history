@@ -1,0 +1,43 @@
+--===============================================================
+--Create procedure to produce a short version of revnue_history
+--compared to the verson produced by gold.fact_revenue
+--===============================================================
+
+Create or Replace Procedure gold.short_rev_history()
+Language plpgsql
+As
+$$
+Begin
+	Create view gold.short_rev_history as
+	Select 
+		entity,
+		vertical,
+		bu,
+		customer_code,
+		oracle_customer_name,
+		industry,
+		transaction_type,
+		Sum(amount) total_revenue,
+		Extract(Month from date) mth,
+		to_char(date,'Mon-YY') mth_yr,
+		top150_mapping
+	from gold.fact_revenue
+	Group by
+		entity,
+		vertical,
+		bu,
+		customer_code,
+		oracle_customer_name,
+		industry,
+		transaction_type,
+		Extract(Month from date),
+		to_char(date,'Mon-YY'),
+		top150_mapping
+	Order by
+		Extract(Month from date);
+End;
+$$;
+--===============================================
+--call procedure
+--===============================================
+call gold.short_rev_history()
