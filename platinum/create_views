@@ -200,3 +200,47 @@ Group by
 	lob
 Order by
 	revenue_month
+
+--CREATE VIEW platinum.period_reference
+
+With cte_1 as(
+Select
+	date_trunc('month', date)::date as month_start
+From platinum.txn_normalized
+),
+cte_2 as(
+Select
+	month_start,
+	row_number() over() month_rank
+From cte_1
+Group by 
+	month_start
+Order by month_start desc
+)
+Select
+	*,
+	Case
+		When month_rank = 1 Then 1
+		Else 0
+	End is_latest_closed_month,
+	Case 
+		When month_rank = 2 Then 1
+		Else 0
+	End is_prior_month,
+	Case
+		When month_rank >=1 and month_rank <= 3 Then 1
+		Else 0
+	End is_trailing_3m,
+	Case
+		When month_rank >=4 and month_rank <= 6 Then 1
+		Else 0
+	End is_prior_3m,
+	Case
+		When month_rank >=1 and month_rank <= 12 Then 1
+		Else 0
+	End is_trailing_12m,
+	Case 
+		When month_rank >= 13 and month_rank <=24 Then 1
+		Else 0
+	End is_prior_12m
+From cte_2
