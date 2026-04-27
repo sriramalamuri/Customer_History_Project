@@ -1,0 +1,54 @@
+--CREATE SCHEMA PLATINUM
+
+Create Schema platinum
+
+--CREATE VIEW platinum.tax_normalized
+
+Drop view if exists platinum.txn_normalized;
+Create view platinum.txn_normalized as
+Select
+	*,
+	Extract (Month from date) revenue_month,
+	Extract (Quarter from date) revenue_qtr,
+	Case
+		When transaction_type IN ('Sales Invoices','Purchase Invoices','Deliver') Then 'clean_revenue'
+		When transaction_type IN ('Accrual', 'Cargoes Cost Reclass','Cargoes Revenue Accrual') Then 'accrual'
+		When transaction_type IN ('Adjustment','Allocations','Profit Share Adjustment') Then 'adjustment_revenue'
+		When transaction_type = 'Credit Memos' Then 'credit_memos'
+		When transaction_type = 'Debit Memos' Then 'debit_memos'
+		Else 'manual'
+	End norm_transaction_type,
+	Case 
+		When top150_mapping = 'Yes' Then 1
+		Else 0
+	End top150_flag,
+	Case
+		When transaction_type IN ('Sales Invoices','Purchase Invoices','Deliver') Then 1
+		Else 0
+	End is_cleane_revenue,
+	Case
+		When transaction_type IN ('Adjustment','Allocations','Profit Share Adjustment') Then 1
+		Else 0
+	End is_adjustment_revenue,
+	Case
+		When transaction_type = 'Credit Memos' Then 1
+		Else 0
+	End is_credit_memo,
+	Case
+		When transaction_type = 'Debit Memos' Then 1
+		Else 0
+	End is_debit_memo,
+	Case
+		When transaction_type IN ('Accrual', 'Cargoes Cost Reclass','Cargoes Revenue Accrual') Then 1
+		Else 0
+	End is_accrual,
+		Case
+		When transaction_type IN ('Manual','Miscellaneous','Other','Receipts',Null) Then 1
+		Else 0
+	End is_manual,
+	Extract(Day from date) day_of_month,
+	Case
+		When Extract(Day from date) > 25 Then 1
+		Else 0
+	End close_window_flag
+From gold.fact_revenue
