@@ -25,7 +25,7 @@ Select
 	Case
 		When transaction_type IN ('Sales Invoices','Purchase Invoices','Deliver') Then 1
 		Else 0
-	End is_cleane_revenue,
+	End is_clean_revenue,
 	Case
 		When transaction_type IN ('Adjustment','Allocations','Profit Share Adjustment') Then 1
 		Else 0
@@ -52,3 +52,72 @@ Select
 		Else 0
 	End close_window_flag
 From gold.fact_revenue
+
+--CREATE VIEW platinum.customer_month_base
+Drop View If Exists platinum.customer_month_base;
+Create View platinum.customer_month_base As
+With cte_1 As(
+	Select
+		revenue_month,
+		customer_code,
+		Case
+			When is_clean_revenue = 1 Then Sum(amount)
+			Else 0
+		End clean_revenue_amount,
+		Case
+			When is_credit_memo = 1 Then Sum(amount)
+			Else 0
+		End credit_memo_amount,
+		Case
+			When is_debit_memo = 1 Then Sum(amount)
+			Else 0
+		End debit_memo_amount,	
+		Case
+			When is_accrual = 1 Then Sum(amount)
+			Else 0
+		End accrual_amount,
+		Case
+			When is_adjustment_revenue = 1 Then Sum(amount)
+			Else 0
+		End adjustment_revenue_amount,
+		Case
+			When is_manual = 1 Then Sum(amount)
+			Else 0
+		End manual_amount,
+		Count (Distinct Entity) entity_footprint,
+		Count (Distinct vertical) vertical_footprint,
+		Count (Distinct bu) bu_footprint,
+		Count (Distinct lob) lob_footprint
+	From platinum.txn_normalized
+	Group by 
+	customer_code, 
+	revenue_month,
+	is_clean_revenue,
+	is_credit_memo,
+	is_debit_memo,
+	is_accrual,
+	is_adjustment_revenue,
+	is_manual,
+	Entity,
+	vertical,
+	bu,
+	lob	
+	Order by revenue_month
+)
+Select 
+	revenue_month,
+	customer_code,
+	Sum(clean_revenue_amount) clean_revenue_amount,
+	Sum(credit_memo_amount) credit_memo_amount,
+	Sum(debit_memo_amount) debit_memo_amount,
+	Sum(accrual_amount) accrual_amount,
+	Sum(adjustment_revenue_amount) adjustment_revenue_amount,
+	Sum(manual_amount) manual_amount,
+	Count(Distinct entity_footprint) entity_footprint,
+	Count(Distinct vertical_footprint) vertical_footprint,
+	Count(Distinct bu_footprint) bu_footprint,
+	Count(Distinct lob_footprint) lob_footprint
+From cte_1
+Group by
+	revenue_month,
+	customer_code
