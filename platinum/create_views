@@ -2,7 +2,7 @@
 
 Create Schema platinum
 
---CREATE VIEW platinum.tax_normalized
+--CREATE VIEW platinum.txn_normalized
 
 Drop view if exists platinum.txn_normalized;
 Create view platinum.txn_normalized as
@@ -121,3 +121,82 @@ From cte_1
 Group by
 	revenue_month,
 	customer_code
+Order by 
+	revenue_month
+
+--CREATE VIEW platinum.segment_month_base
+Drop View If Exists platinum.segment_month_base;
+Create View platinum.segment_month_base as
+With cte_2 As(
+	Select
+		revenue_month,
+		entity,
+		vertical,
+		bu,
+		lob,
+		customer_code,
+		Sum(amount) amount,
+		Case
+			When is_clean_revenue = 1 Then Sum(amount)
+			Else 0
+		End clean_revenue_amount,
+		Case
+			When is_credit_memo = 1 Then Sum(amount)
+			Else 0
+		End credit_memo_amount,
+		Case
+			When is_debit_memo = 1 Then Sum(amount)
+			Else 0
+		End debit_memo_amount,	
+		Case
+			When is_accrual = 1 Then Sum(amount)
+			Else 0
+		End accrual_amount,
+		Case
+			When is_adjustment_revenue = 1 Then Sum(amount)
+			Else 0
+		End adjustment_revenue_amount,
+		Case
+			When is_manual = 1 Then Sum(amount)
+			Else 0
+		End manual_amount
+	From platinum.txn_normalized
+	Group by  
+	revenue_month,
+	entity,
+	vertical,
+	bu,
+	lob,
+	customer_code,
+	amount,
+	is_clean_revenue,
+	is_credit_memo,
+	is_debit_memo,
+	is_accrual,
+	is_adjustment_revenue,
+	is_manual
+	Order by revenue_month
+)
+Select
+	revenue_month,
+	entity,
+	vertical,
+	bu,
+	lob,
+	Count(customer_code) customer_count,
+	Sum(amount) total_revenue,
+	Sum(clean_revenue_amount) clean_revenue_amount,
+	Sum(credit_memo_amount) credit_memo_amount,
+	Sum(debit_memo_amount) debit_memo_amount,
+	Sum(accrual_amount) accrual_amount,
+	Sum(adjustment_revenue_amount) adjustment_revenue_amount,
+	Sum(manual_amount) manual_amount
+From cte_2
+Group by
+	revenue_month,
+	entity,
+	vertical,
+	bu,
+	lob
+Order by
+	revenue_month
