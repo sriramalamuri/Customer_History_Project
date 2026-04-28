@@ -247,5 +247,10 @@ Select
 	Case 
 		When month_rank >= 13 and month_rank <=24 Then 1
 		Else 0
-	End is_prior_12m
+	End is_prior_12m,
+	CASE
+    	When month_start >= date_trunc('quarter',(Select Max(month_start) From cte_1))         
+     	And month_start <= (Select Max(month_start) From cte_1) Then 1
+    	Else 0
+	End is_current_qtd
 From cte_2
