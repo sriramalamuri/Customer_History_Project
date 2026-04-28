@@ -200,25 +200,30 @@ Group by
 	lob
 Order by
 	revenue_month
-
+	
 --CREATE VIEW platinum.period_reference
-
 With cte_1 as(
 Select
 	date_trunc('month', date)::date as month_start
 From platinum.txn_normalized
+Group by
+date
 ),
 cte_2 as(
 Select
 	month_start,
-	row_number() over() month_rank
+	row_number() over() month_rank,
+	Extract(quarter from month_start) current_qtr,
+	Extract(year from month_start) current_yr		
 From cte_1
 Group by 
 	month_start
 Order by month_start desc
 )
 Select
-	*,
+	month_start,
+	row_number() over() month_rank,
+	current_yr || '-Q' || current_qtr quarter_label,
 	Case
 		When month_rank = 1 Then 1
 		Else 0
