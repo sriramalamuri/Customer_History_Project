@@ -202,6 +202,8 @@ Order by
 	revenue_month
 	
 --CREATE VIEW platinum.period_reference
+Drop view if exists platinum.period_reference;
+Create View platinum.period_reference As
 With cte_1 as(
 Select
 	date_trunc('month', date)::date as month_start
@@ -222,7 +224,7 @@ Order by month_start desc
 )
 Select
 	month_start,
-	row_number() over() month_rank,
+	month_rank,
 	current_yr || '-Q' || current_qtr quarter_label,
 	Case
 		When month_rank = 1 Then 1
